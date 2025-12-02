@@ -1,0 +1,8 @@
+<main class="main">
+  <h1>Names:</h1>
+  <ul>
+    @for(name of names; track $index) {
+    <li>{{ name | uppercase }}</li>
+    }
+  </ul>
+</main>
