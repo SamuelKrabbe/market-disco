@@ -1,0 +1,380 @@
+openapi: 3.0.4
+info:
+  title: MarketDisco API
+  version: 1.0.0
+  description: |
+    REST API for MarketDisco: users can listen to music, earn points, and
+    purchase discs. Artists can upload music and receive points based on
+    engagement. Includes analytics endpoints.
+
+servers:
+  - url: https://api.marketdisco.com/api/v1
+    description: Production
+
+  - url: http://localhost:8080/api/v1
+    description: Local development
+
+paths:
+  ############################
+  # AUTH
+  ############################
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUserInput"
+      responses:
+        "201":
+          description: User created
+        "400":
+          description: Validation error
+
+  /auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in
+        "401":
+          description: Invalid credentials
+
+  ############################
+  # USERS
+  ############################
+  /users:
+    get:
+      tags: [Users]
+      summary: List users
+      responses:
+        "200":
+          description: OK
+    post:
+      tags: [Users]
+      summary: Create user (admin)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: Created
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found
+
+    patch:
+      tags: [Users]
+      summary: Update user
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateInput"
+      responses:
+        "200":
+          description: Updated
+
+    delete:
+      tags: [Users]
+      summary: Delete user
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "204":
+          description: Deleted
+
+  /users/{id}/points:
+    get:
+      tags: [Users]
+      summary: Get user points
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: OK
+
+  /users/{id}/purchases:
+    get:
+      tags: [Users]
+      summary: List discs purchased by user
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: OK
+
+  ############################
+  # ARTISTS
+  ############################
+  /artists:
+    get:
+      tags: [Artists]
+      summary: List artists
+      responses:
+        "200": { description: OK }
+
+    post:
+      tags: [Artists]
+      summary: Create artist profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArtistInput"
+      responses:
+        "201": { description: Created }
+
+  /artists/{id}:
+    get:
+      tags: [Artists]
+      summary: Get artist by ID
+      parameters:
+        - $ref: "#/components/parameters/ArtistId"
+      responses:
+        "200": { description: OK }
+
+    patch:
+      tags: [Artists]
+      summary: Update artist
+      parameters:
+        - $ref: "#/components/parameters/ArtistId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArtistUpdateInput"
+      responses:
+        "200": { description: OK }
+
+  /artists/{id}/stats:
+    get:
+      tags: [Artists]
+      summary: Get analytics for artist
+      parameters:
+        - $ref: "#/components/parameters/ArtistId"
+      responses:
+        "200": { description: OK }
+
+  /artists/{id}/points:
+    get:
+      tags: [Artists]
+      summary: Get artist points
+      parameters:
+        - $ref: "#/components/parameters/ArtistId"
+      responses:
+        "200": { description: OK }
+
+  ############################
+  # DISCOS
+  ############################
+  /discos:
+    get:
+      tags: [Discos]
+      summary: List discos
+      responses:
+        "200": { description: OK }
+
+    post:
+      tags: [Discos]
+      summary: Create disco
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscoInput"
+      responses:
+        "201": { description: Created }
+
+  /discos/{id}:
+    get:
+      tags: [Discos]
+      summary: Get disco by ID
+      parameters:
+        - $ref: "#/components/parameters/DiscoId"
+      responses:
+        "200": { description: OK }
+
+    patch:
+      tags: [Discos]
+      summary: Update disco
+      parameters:
+        - $ref: "#/components/parameters/DiscoId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscoUpdateInput"
+      responses:
+        "200": { description: OK }
+
+  ############################
+  # MUSIC
+  ############################
+  /musics:
+    get:
+      tags: [Music]
+      summary: List music
+      responses:
+        "200": { description: OK }
+
+    post:
+      tags: [Music]
+      summary: Upload music
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/MusicUploadInput"
+      responses:
+        "201": { description: Created }
+
+  /musics/{id}:
+    get:
+      tags: [Music]
+      summary: Get music
+      parameters:
+        - $ref: "#/components/parameters/MusicId"
+      responses:
+        "200": { description: OK }
+
+  ############################
+  # SCHEMAS & COMPONENTS
+  ############################
+components:
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+
+    ArtistId:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+
+    DiscoId:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+
+    MusicId:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+
+  schemas:
+    #######################
+    # AUTH SCHEMAS
+    #######################
+    RegisterUserInput:
+      type: object
+      required: [username, email, password]
+      properties:
+        username: { type: string }
+        email: { type: string, format: email }
+        password: { type: string }
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+
+    #######################
+    # USER SCHEMAS
+    #######################
+    UserInput:
+      type: object
+      properties:
+        username: { type: string }
+        email: { type: string }
+        cpf: { type: string }
+        role: { type: string }
+
+    UserUpdateInput:
+      type: object
+      properties:
+        username: { type: string }
+        email: { type: string }
+        role: { type: string }
+
+    #######################
+    # ARTIST SCHEMAS
+    #######################
+    ArtistInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        bio: { type: string }
+
+    ArtistUpdateInput:
+      type: object
+      properties:
+        name: { type: string }
+        bio: { type: string }
+
+    #######################
+    # DISCO SCHEMAS
+    #######################
+    DiscoInput:
+      type: object
+      required: [title, artist_id, price]
+      properties:
+        title: { type: string }
+        artist_id: { type: integer }
+        cover: { type: string }
+        price: { type: integer }
+
+    DiscoUpdateInput:
+      type: object
+      properties:
+        title: { type: string }
+        price: { type: integer }
+        cover: { type: string }
+
+    #######################
+    # MUSIC SCHEMAS
+    #######################
+    MusicUploadInput:
+      type: object
+      required: [file, title, artist_id]
+      properties:
+        file:
+          type: string
+          format: binary
+        title:
+          type: string
+        artist_id:
+          type: integer
+        disc_id:
+          type: integer
